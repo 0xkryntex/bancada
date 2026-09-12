@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bancada — ferramentas de bolso para dev</title>
+    <meta
+      name="description"
+      content="Bancada: JSON, base64, UUID, JWT, timestamp, diff, regex e hash. Roda inteiramente no navegador, sem enviar nada para servidor."
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400..650&family=JetBrains+Mono:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./base.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Ir para o conteúdo</a>
+
+    <header class="header">
+      <div class="brand">
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="square"
+          aria-label="Bancada"
+          role="img"
+        >
+          <path d="M3 10h18" />
+          <path d="M6 10v11" />
+          <path d="M18 10v11" />
+          <path d="M12 3v7" />
+          <path d="M9 6h6" />
+        </svg>
+        <span class="brand-text">
+          <span class="brand-name">Bancada</span>
+          <span class="brand-tag">ferramentas de bolso para dev</span>
+        </span>
+      </div>
+
+      <div class="header-actions">
+        <button class="palette-trigger" type="button" data-palette-open>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.5-3.5" />
+          </svg>
+          Buscar ferramenta
+          <span class="kbd">Ctrl K</span>
+        </button>
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Alternar tema"></button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="sidebar" aria-label="Ferramentas">
+        <p class="sidebar-label">Ferramentas</p>
+        <div class="tool-list" role="tablist" aria-orientation="vertical" data-tool-list></div>
+      </nav>
+
+      <main class="main" id="main">
+        <!-- ============ JSON ============ -->
+        <section
+          class="panel"
+          id="panel-json"
+          role="tabpanel"
+          aria-labelledby="tab-json"
+          data-panel="json"
+        >
+          <div class="panel-head">
+            <h2>JSON</h2>
+            <p>
+              Formate, minifique e valide. Erros mostram linha e coluna, e a árvore de chaves é
+              contada para você conferir o payload rápido.
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn btn-primary" type="button" data-act="json-format">Formatar</button>
+            <button class="btn" type="button" data-act="json-minify">Minificar</button>
+            <button class="btn" type="button" data-act="json-sort">Ordenar chaves</button>
+            <span class="toolbar-sep"></span>
+            <label class="hint" for="json-indent">indent</label>
+            <select class="select" id="json-indent" style="width: 72px" data-json-indent>
+              <option value="2" selected>2</option>
+              <option value="4">4</option>
+              <option value="tab">tab</option>
+            </select>
+            <span class="toolbar-sep"></span>
+            <button class="btn btn-ghost" type="button" data-act="json-sample">Exemplo</button>
+            <button class="btn btn-ghost" type="button" data-act="json-clear">Limpar</button>
+            <button class="btn btn-ghost" type="button" data-copy="#json-out">Copiar saída</button>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label class="field-label" for="json-in">Entrada</label>
+              <textarea
+                class="textarea"
+                id="json-in"
+                spellcheck="false"
+                placeholder='{"nome":"bancada","versao":1}'
+              ></textarea>
+            </div>
+            <div class="field">
+              <span class="field-label">Saída</span>
+              <div class="out mono" id="json-out"></div>
+            </div>
+          </div>
+
+          <div class="toolbar" style="margin-top: var(--space-4)">
+            <span class="status" data-kind="idle" data-status="json">Aguardando entrada</span>
+          </div>
+        </section>
+
+        <!-- ============ BASE64 / URL ============ -->
+        <section
+          class="panel"
+          id="panel-b64"
+          role="tabpanel"
+          aria-labelledby="tab-b64"
+          data-panel="b64"
+          hidden
+        >
+          <div class="panel-head">
+            <h2>Base64 e URL</h2>
+            <p>
+              Codificação e decodificação com suporte a UTF-8 e à variante segura para URL. A
+              conversão acontece conforme você digita.
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <label class="hint" for="b64-mode">modo</label>
+            <select class="select" id="b64-mode" style="width: 220px" data-b64-mode>
+              <option value="b64enc" selected>Texto → Base64</option>
+              <option value="b64dec">Base64 → Texto</option>
+              <option value="urlenc">Texto → URL encode</option>
+              <option value="urldec">URL encode → Texto</option>
+            </select>
+            <label class="hint" style="display: inline-flex; align-items: center; gap: 6px">
+              <input type="checkbox" data-b64-urlsafe />
+              base64 url-safe
+            </label>
+            <span class="toolbar-sep"></span>
+            <button class="btn btn-ghost" type="button" data-act="b64-swap">Inverter</button>
+            <button class="btn btn-ghost" type="button" data-act="b64-clear">Limpar</button>
+            <button class="btn btn-ghost" type="button" data-copy="#b64-out">Copiar saída</button>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label class="field-label" for="b64-in">Entrada</label>
+              <textarea
+                class="textarea"
+                id="b64-in"
+                spellcheck="false"
+                placeholder="Cole o texto aqui"
+              ></textarea>
+            </div>
+            <div class="field">
+              <span class="field-label">Saída</span>
+              <div class="out mono" id="b64-out"></div>
+            </div>
+          </div>
+
+          <div class="toolbar" style="margin-top: var(--space-4)">
+            <span class="status" data-kind="idle" data-status="b64">Aguardando entrada</span>
+          </div>
+        </section>
+
+        <!-- ============ UUID ============ -->
+        <section
+          class="panel"
+          id="panel-uuid"
+          role="tabpanel"
+          aria-labelledby="tab-uuid"
+          data-panel="uuid"
+          hidden
+        >
+          <div class="panel-head">
+            <h2>Identificadores</h2>
+            <p>
+              UUID v4, UUID v7 (ordenável por tempo) e tokens aleatórios em hex ou base62, gerados
+              com <span class="mono">crypto.getRandomValues</span>.
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn btn-primary" type="button" data-act="uuid-gen">Gerar</button>
+            <span class="toolbar-sep"></span>
+            <label class="hint" for="uuid-kind">tipo</label>
+            <select class="select" id="uuid-kind" style="width: 190px" data-uuid-kind>
+              <option value="v4" selected>UUID v4</option>
+              <option value="v7">UUID v7</option>
+              <option value="hex">Token hex (32)</option>
+              <option value="b62">Token base62 (21)</option>
+            </select>
+            <label class="hint" for="uuid-count">quantidade</label>
+            <input
+              class="input"
+              id="uuid-count"
+              type="number"
+              min="1"
+              max="200"
+              value="5"
+              style="width: 92px"
+              data-uuid-count
+            />
+            <label class="hint" style="display: inline-flex; align-items: center; gap: 6px">
+              <input type="checkbox" data-uuid-upper />
+              maiúsculas
+            </label>
+            <span class="toolbar-sep"></span>
+            <button class="btn btn-ghost" type="button" data-act="uuid-copy-all">Copiar tudo</button>
+          </div>
+
+          <div class="card">
+            <p class="card-title">Resultado</p>
+            <div class="uuid-list" data-uuid-list>
+              <div class="empty">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  aria-hidden="true"
+                >
+                  <path d="M12 3v4" />
+                  <path d="M12 17v4" />
+                  <rect x="4" y="7" width="16" height="10" rx="2" />
+                  <path d="M8 12h8" />
+                </svg>
+                <p>Nenhum identificador ainda. Clique em Gerar para produzir o primeiro lote.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ JWT ============ -->
+        <section
+          class="panel"
+          id="panel-jwt"
+          role="tabpanel"
+          aria-labelledby="tab-jwt"
+          data-panel="jwt"
+          hidden
+        >
+          <div class="panel-head">
+            <h2>JWT</h2>
+            <p>
+              Decodifica header e payload sem validar assinatura, e traduz as datas
+              <span class="mono">iat</span>, <span class="mono">nbf</span> e
+              <span class="mono">exp</span> para o seu fuso.
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn btn-ghost" type="button" data-act="jwt-sample">Exemplo</button>
+            <button class="btn btn-ghost" type="button" data-act="jwt-clear">Limpar</button>
+            <button class="btn btn-ghost" type="button" data-copy="#jwt-payload">
+              Copiar payload
+            </button>
+          </div>
+
+          <div class="field" style="margin-bottom: var(--space-4)">
+            <label class="field-label" for="jwt-in">Token</label>
+            <textarea
+              class="textarea"
+              id="jwt-in"
+              spellcheck="false"
+              style="min-height: 120px; white-space: pre-wrap"
+              placeholder="eyJhbGciOi..."
+            ></textarea>
+          </div>
+
+          <div class="toolbar">
+            <span class="status" data-kind="idle" data-status="jwt">Aguardando token</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <p class="card-title">Header</p>
+              <div class="out mono" id="jwt-header" style="min-height: 140px"></div>
+            </div>
+            <div class="card">
+              <p class="card-title">Payload</p>
+              <div class="out mono" id="jwt-payload" style="min-height: 140px"></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: var(--space-4)">
+            <p class="card-title">Datas e validade</p>
+            <div data-jwt-dates>
+              <p class="hint">Cole um token para ver as datas convertidas.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ TIMESTAMP ============ -->
+        <section
+          class="panel"
+          id="panel-time"
+          role="tabpanel"
+          aria-labelledby="tab-time"
+          data-panel="time"
+          hidden
+        >
+          <div class="panel-head">
+            <h2>Timestamp</h2>
+            <p>
+              Converte entre Unix (segundos ou milissegundos), ISO 8601 e data legível, com o relógio
+              atual sempre à vista.
+            </p>
+          </div>
+
+          <div class="card" style="margin-bottom: var(--space-4)">
+            <p class="card-title">Agora</p>
+            <table class="kv">
+              <tbody>
+                <tr>
+                  <th>Unix (s)</th>
+                  <td class="tnum" data-now-s></td>
+                </tr>
+                <tr>
+                  <th>Unix (ms)</th>
+                  <td class="tnum" data-now-ms></td>
+                </tr>
+                <tr>
+                  <th>ISO 8601</th>
+                  <td data-now-iso></td>
+                </tr>
+                <tr>
+                  <th>Local</th>
+                  <td data-now-local></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="toolbar">
+            <label class="hint" for="time-in">valor</label>
+            <input
+              class="input"
+              id="time-in"
+              style="max-width: 340px"
+              spellcheck="false"
+              placeholder="1757680000 ou 2026-09-12T19:00:00Z"
+              data-time-in
+            />
+            <button class="btn" type="button" data-act="time-now">Usar agora</button>
+            <button class="btn btn-ghost" type="button" data-act="time-clear">Limpar</button>
+          </div>
+
+          <div class="toolbar">
+            <span class="status" data-kind="idle" data-status="time">Aguardando valor</span>
+          </div>
+
+          <div class="card">
+            <p class="card-title">Conversões</p>
+            <table class="kv">
+              <tbody data-time-out>
+                <tr>
+                  <td><span class="hint">Digite um timestamp ou uma data para converter.</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ DIFF ============ -->
+        <section
+          class="panel"
+          id="panel-diff"
+          role="tabpanel"
+          aria-labelledby="tab-diff"
+          data-panel="diff"
+          hidden
+        >
+          <div class="panel-head">
+            <h2>Diff de texto</h2>
+            <p>
+              Comparação linha a linha por maior subsequência comum, com contagem de adições e
+              remoções.
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn btn-primary" type="button" data-act="diff-run">Comparar</button>
+            <label class="hint" style="display: inline-flex; align-items: center; gap: 6px">
+              <input type="checkbox" data-diff-trim />
+              ignorar espaços nas pontas
+            </label>
+            <label class="hint" style="display: inline-flex; align-items: center; gap: 6px">
+              <input type="checkbox" data-diff-case />
+              ignorar maiúsculas
+            </label>
+            <span class="toolbar-sep"></span>
+            <button class="btn btn-ghost" type="button" data-act="diff-clear">Limpar</button>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: var(--space-4)">
+            <div class="field">
+              <label class="field-label" for="diff-a">Original</label>
+              <textarea
+                class="textarea"
+                id="diff-a"
+                spellcheck="false"
+                style="min-height: 200px"
+              ></textarea>
+            </div>
+            <div class="field">
+              <label class="field-label" for="diff-b">Modificado</label>
+              <textarea
+                class="textarea"
+                id="diff-b"
+                spellcheck="false"
+                style="min-height: 200px"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <span class="status" data-kind="idle" data-status="diff">Nenhuma comparação ainda</span>
+          </div>
+
+          <div class="diff" data-diff-out>
+            <div class="empty">
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="M5 4v10a3 3 0 0 0 3 3h8" />
+                <path d="M13 14l3 3-3 3" />
+                <circle cx="5" cy="4" r="0.5" />
+              </svg>
+              <p>Cole os dois textos e clique em Comparar para ver as diferenças destacadas.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ REGEX ============ -->
+        <section
+          class="panel"
+          id="panel-regex"
+          role="tabpanel"
+          aria-labelledby="tab-regex"
+          data-panel="regex"
+          hidden
+        >
+          <div class="panel-head">
+            <h2>Regex</h2>
+            <p>
+              Teste padrões com destaque ao vivo no texto, lista de capturas e grupos nomeados, além
+              de substituição com <span class="mono">$1</span>.
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <label class="hint" for="regex-pattern">padrão</label>
+            <input
+              class="input"
+              id="regex-pattern"
+              style="max-width: 420px"
+              spellcheck="false"
+              placeholder="(\w+)@(\w+\.\w+)"
+              data-regex-pattern
+            />
+            <label class="hint" for="regex-flags">flags</label>
+            <input
+              class="input"
+              id="regex-flags"
+              style="width: 96px"
+              spellcheck="false"
+              value="g"
+              data-regex-flags
+            />
+            <span class="toolbar-sep"></span>
+            <button class="btn btn-ghost" type="button" data-act="regex-sample">Exemplo</button>
+            <button class="btn btn-ghost" type="button" data-act="regex-clear">Limpar</button>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label class="field-label" for="regex-text">Texto de teste</label>
+              <textarea
+                class="textarea"
+                id="regex-text"
+                spellcheck="false"
+                style="min-height: 220px"
+                data-regex-text
+              ></textarea>
+            </div>
+            <div class="field">
+              <span class="field-label">Destaque</span>
+              <div class="out mono" data-regex-hl style="min-height: 220px"></div>
+            </div>
+          </div>
+
+          <div class="toolbar" style="margin-top: var(--space-4)">
+            <span class="status" data-kind="idle" data-status="regex">Aguardando padrão</span>
+            <span class="toolbar-sep"></span>
+            <label class="hint" for="regex-replace">substituir por</label>
+            <input
+              class="input"
+              id="regex-replace"
+              style="max-width: 260px"
+              spellcheck="false"
+              placeholder="$1 em $2"
+              data-regex-replace
+            />
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <p class="card-title">Capturas</p>
+              <div class="match-list" data-regex-matches>
+                <p class="hint">Sem correspondências.</p>
+              </div>
+            </div>
+            <div class="card">
+              <p class="card-title">Resultado da substituição</p>
+              <div class="out mono" data-regex-replaced style="min-height: 120px"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ HASH ============ -->
+        <section
+          class="panel"
+          id="panel-hash"
+          role="tabpanel"
+          aria-labelledby="tab-hash"
+          data-panel="hash"
+          hidden
+        >
+          <div class="panel-head">
+            <h2>Hash</h2>
+            <p>
+              SHA-1, SHA-256, SHA-384 e SHA-512 calculados pela Web Crypto do próprio navegador,
+              sobre texto UTF-8.
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn btn-ghost" type="button" data-act="hash-clear">Limpar</button>
+            <button class="btn btn-ghost" type="button" data-copy="#hash-256">Copiar SHA-256</button>
+          </div>
+
+          <div class="field" style="margin-bottom: var(--space-4)">
+            <label class="field-label" for="hash-in">Texto</label>
+            <textarea
+              class="textarea"
+              id="hash-in"
+              spellcheck="false"
+              style="min-height: 160px; white-space: pre-wrap"
+              placeholder="Digite o texto a ser resumido"
+            ></textarea>
+          </div>
+
+          <div class="card">
+            <p class="card-title">Resumos</p>
+            <table class="kv">
+              <tbody>
+                <tr>
+                  <th>SHA-1</th>
+                  <td id="hash-1">—</td>
+                </tr>
+                <tr>
+                  <th>SHA-256</th>
+                  <td id="hash-256">—</td>
+                </tr>
+                <tr>
+                  <th>SHA-384</th>
+                  <td id="hash-384">—</td>
+                </tr>
+                <tr>
+                  <th>SHA-512</th>
+                  <td id="hash-512">—</td>
+                </tr>
+                <tr>
+                  <th>Bytes UTF-8</th>
+                  <td class="tnum" id="hash-bytes">0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>Tudo roda no navegador. Nenhum dado sai da sua máquina.</span>
+          <span class="mono">Ctrl K abre a busca · 1–8 alterna ferramentas</span>
+        </footer>
+      </main>
+    </div>
+
+    <div class="palette-backdrop" data-palette data-open="false">
+      <div class="palette" role="dialog" aria-modal="true" aria-label="Buscar ferramenta">
+        <div class="palette-head">
+          <h2>Ferramentas</h2>
+          <button class="btn btn-ghost" type="button" data-palette-close style="min-height: 32px">
+            Fechar
+          </button>
+        </div>
+        <input
+          type="text"
+          placeholder="Buscar…"
+          aria-label="Buscar ferramenta"
+          spellcheck="false"
+          data-palette-input
+        />
+        <div class="palette-list" data-palette-list></div>
+      </div>
+    </div>
+
+    <div class="toast" data-toast role="status" aria-live="polite"></div>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
