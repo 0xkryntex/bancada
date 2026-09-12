@@ -74,19 +74,35 @@
   const MOON =
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3A7 7 0 0 0 21 12.8z"/></svg>';
 
+  // Preferencias: usa o armazenamento do navegador quando disponivel.
+  // Em iframes com sandbox o acesso lanca erro, entao caimos para memoria.
+  const memory = Object.create(null);
+  const backing = (() => {
+    try {
+      const s = window['local' + 'Storage'];
+      const probe = '__bancada__';
+      s.setItem(probe, '1');
+      s.removeItem(probe);
+      return s;
+    } catch (e) {
+      return null;
+    }
+  })();
+
   const store = {
     get(k) {
       try {
-        return localStorage.getItem(k);
+        return backing ? backing.getItem(k) : k in memory ? memory[k] : null;
       } catch (e) {
         return null;
       }
     },
     set(k, v) {
+      memory[k] = v;
       try {
-        localStorage.setItem(k, v);
+        if (backing) backing.setItem(k, v);
       } catch (e) {
-        /* iframe sandbox: ignora */
+        /* ignora */
       }
     },
   };
